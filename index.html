@@ -35,6 +35,8 @@
                     <input type="number" id="height-input" name="height" min="3" max="64" value="5">
                 </p>
                 <button onclick="replaceLayout()">Replace layout</button>
+                <button onclick="importLayout()">Import layout</button>
+                <button onclick="exportLayout()">Export layout</button>
             </div>
         </div>
         <p>
@@ -462,6 +464,23 @@
 
             document.querySelector("#reactor-layout-wrapper").replaceChildren(reactorLayout.getHtmlLayout());
             runSimulationAndPostResults();
+        }
+        
+        function importLayout() {
+            const base64 = prompt("Paste base64 encoded reactor layout here.");
+            try {
+                atob(base64);
+            } catch {
+                alert("Invalid base64 string.");
+            }
+            
+            reactorLayout.fromBase64(base64);
+        }
+        
+        function exportLayout() {
+            const base64 = reactorLayout.getBase64();
+            navigator.clipboard.writeText(base64);
+            alert("Reactor layour copied to clipboard!");
         }
 
         function updateConfig() {
