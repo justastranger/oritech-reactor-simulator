@@ -157,12 +157,25 @@
                 let tmp = JSON.parse(atob(base64));
                 this.width = tmp.width;
                 this.height = tmp.height;
+                for (var i = 0; i < tmp.layout.length; i++) {
+                    for (var j = 0; j < tmp.layout[i].length; j++) {
+                        var comp = tmp.layout[i][j];
+                        tmp.layout[i][j] = ReactorComponentFactory(comp);
+                    }
+                }
                 this.layout = tmp.layout;
                 document.querySelector("#reactor-layout-wrapper").replaceChildren(reactorLayout.getHtmlLayout());
             }
             
             getBase64() {
-                return btoa(JSON.stringify(this));
+                let tmp = JSON.parse(JSON.stringify(this));
+                for (var i = 0; i < tmp.layout.length; i++) {
+                    for (var j = 0; j < tmp.layout[i].length; j++) {
+                        var comp = tmp.layout[i][j];
+                        tmp.layout[i][j] = ReactorComponentImageEnum[comp.imageUrl];
+                    }
+                }
+                return btoa(JSON.stringify(tmp));
             }
 
             getComponent(position) {
@@ -366,6 +379,17 @@
         let selectedReactorComponentFactory = () => new ReactorEmptyTile();
         let reactorLayout = null;
         let heatHistoryChart = null;
+        
+        const ReactorComponentImageEnum = {
+            "empty.png": 0,
+            "single rod.png": 1,
+            "duo rod.png": 2,
+            "quad rod.png": 3,
+            "reflector.png": 4,
+            "absorber.png": 5,
+            "vent.png": 6, 
+            "heat pipe.png": 7
+        }
 
         function updateSelectedReactorComponentFactory() {
             const componentSelectEle = document.querySelector("#component-select");
@@ -381,6 +405,38 @@
                 () => new ReactorHeatVent(),
                 () => new ReactorHeatPipe(),
             ][selectedValue];
+        }
+        
+        function ReactorComponentFactory(index) {
+            switch (index) {
+                case 0:
+                    return new ReactorEmptyTile();
+                    break;
+                case 1:
+                    return new ReactorFuelRod(1);
+                    break;
+                case 2:
+                    return new ReactorFuelRod(2);
+                    break;
+                case 3:
+                    return new ReactorFuelRod(4);
+                    break;
+                case 4:
+                    return new ReactorNeutronReflector();
+                    break;
+                case 5:
+                    return new ReactorHeatAbsorber();
+                    break;
+                case 6:
+                    return new ReactorHeatVent();
+                    break;
+                case 7:
+                    return new ReactorHeatPipe();
+                    break;
+                default:
+                    return new ReactorEmptyTile();
+                    break;
+            }
         }
 
         function runSimulationAndPostResults() {
