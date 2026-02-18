@@ -19,6 +19,10 @@
                     <label for="vent-relative-rate">ventRelativeRate: </label>
                     <input type="number" id="vent-relative-rate-input" name="vent-relative-rate" value="100">
                 </p>
+                <p>
+                    <label for="stack-height">Reactor stack height: </label>
+                    <input type="number" id="stack-height-input" name="stack-height" min="1" max="64" value="5">
+                </p>
                 <button onclick="updateConfig()">Update config</button>
             </div>
             <div>
@@ -29,10 +33,6 @@
                 <p>
                     <label for="height">Reactor inner height: </label>
                     <input type="number" id="height-input" name="height" min="3" max="64" value="5">
-                </p>
-                <p>
-                    <label for="stack-height">Reactor stack height: </label>
-                    <input type="number" id="stack-height-input" name="stack-height" min="1" max="64" value="5">
                 </p>
                 <button onclick="replaceLayout()">Replace layout</button>
             </div>
@@ -61,6 +61,7 @@
         let ABSORBER_RATE = 16;
         let VENT_BASE_RATE = 4;
         let VENT_RELATIVE_RATE = 100;
+        let STACK_HEIGHT = 1;
 
         // ATM10 values
         // const RF_PER_PULSE = 1100;
@@ -158,19 +159,17 @@
             setComponent(position, reactorComponent) {
                 this.layout[position.y][position.x] = reactorComponent;
             }
-            
+
             getComponentNeighbours(position) {
                 const neighbours = [];
 
-                for (const [xOffset, yOffset] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+                for (const [xOffset, yOffset] of[[0, -1], [1, 0], [0, 1], [-1, 0]]) {
                     const neighbourPosition = new ReactorComponentPosition(
-                        position.x + xOffset,
-                        position.y + yOffset
-                    );
+                            position.x + xOffset,
+                            position.y + yOffset);
 
                     if (neighbourPosition.x < 0 || neighbourPosition.x >= this.width ||
-                        neighbourPosition.y < 0 || neighbourPosition.y >= this.height
-                    ) {
+                        neighbourPosition.y < 0 || neighbourPosition.y >= this.height) {
                         continue;
                     }
 
@@ -212,7 +211,7 @@
                 this.imageUrl = imageUrl;
             }
 
-            tick(reactorLayout, componentPosition, simulator) { }
+            tick(reactorLayout, componentPosition, simulator) {}
         }
 
         class ReactorEmptyTile extends ReactorComponent {
@@ -224,31 +223,31 @@
         class ReactorFuelRod extends ReactorComponent {
             constructor(rodCount) {
                 switch (rodCount) {
-                    case 1:
-                        super("single rod.png");
-                        break;
-                    case 2:
-                        super("duo rod.png");
-                        break;
-                    case 4:
-                        super("quad rod.png");
-                        break;
-                    default:
-                        super(null);
+                case 1:
+                    super("single rod.png");
+                    break;
+                case 2:
+                    super("duo rod.png");
+                    break;
+                case 4:
+                    super("quad rod.png");
+                    break;
+                default:
+                    super(null);
                 }
                 this.rodCount = rodCount;
             }
 
             getInternalPulses() {
                 switch (this.rodCount) {
-                    case 1:
-                        return 1;
-                    case 2:
-                        return 4;
-                    case 4:
-                        return 12;
-                    default:
-                        return 0;
+                case 1:
+                    return 1;
+                case 2:
+                    return 4;
+                case 4:
+                    return 12;
+                default:
+                    return 0;
                 }
             }
 
@@ -265,10 +264,10 @@
                     }
                 }
 
-                simulator.rfGenerated += RF_PER_PULSE * receivedPulses * reactorLayout.stackHeight;
+                simulator.rfGenerated += RF_PER_PULSE * receivedPulses * STACK_HEIGHT;
                 simulator.addComponentHeat(componentPosition, receivedPulses / 2 * receivedPulses + 4);
 
-                simulator.fuelConsumed += this.rodCount * reactorLayout.stackHeight;
+                simulator.fuelConsumed += this.rodCount * STACK_HEIGHT;
             }
         }
 
@@ -319,7 +318,7 @@
                 }
 
                 if (sumRemovedHeat > 0) {
-                    simulator.coolantConsumed += reactorLayout.stackHeight;
+                    simulator.coolantConsumed += STACK_HEIGHT;
                 }
             }
         }
@@ -345,8 +344,7 @@
                 if (hottestNeighbourHeat != 0) {
                     simulator.addComponentHeat(
                         hottestNeighbourPosition,
-                        -Math.min(hottestNeighbourHeat / VENT_RELATIVE_RATE + VENT_BASE_RATE, hottestNeighbourHeat)
-                    );
+                        -Math.min(hottestNeighbourHeat / VENT_RELATIVE_RATE + VENT_BASE_RATE, hottestNeighbourHeat));
                 }
             }
         }
@@ -379,11 +377,11 @@
             const simulationSeconds = 1000 / 20;
 
             const simulationResultsText = `${reactorSimulator.rfGenerated / 1000} RF/t\n` +
-                `${(reactorSimulator.coolantConsumed / 1000 / simulationSeconds).toFixed(2)} ice blocks per second\n\n` +
-                `${(reactorSimulator.fuelConsumed / 4000 / simulationSeconds).toFixed(2)} uranium pellets per second, OR\n` +
-                `${(reactorSimulator.fuelConsumed / 40000 / simulationSeconds).toFixed(2)} plutonium pellets per second, OR\n` +
-                `${(reactorSimulator.fuelConsumed / 400 / simulationSeconds).toFixed(2)} small uranium pellets per second, OR\n` +
-                `${(reactorSimulator.fuelConsumed / 4000 / simulationSeconds).toFixed(2)} small plutonium pellets per second\n`;
+                `${(reactorSimulator.coolantConsumed / 1000 / simulationSeconds).toFixed(2)} ice blocks per second\n\n` + 
+                `${(reactorSimulator.fuelConsumed / 4000 / simulationSeconds).toFixed(2)} uranium pellets per second, OR\n` + 
+                `${(reactorSimulator.fuelConsumed / 40000 / simulationSeconds).toFixed(2)} plutonium pellets per second, OR\n` + 
+                `${(reactorSimulator.fuelConsumed / 400 / simulationSeconds).toFixed(2)} small uranium pellets per second, OR\n` + 
+        `${(reactorSimulator.fuelConsumed / 4000 / simulationSeconds).toFixed(2)} small plutonium pellets per second\n`;
 
             simulationResults.textContent = simulationResultsText;
 
@@ -409,12 +407,14 @@
                 type: "line",
                 data: {
                     labels: Array.from(reactorSimulator.maxHeatHistory.keys()),
-                    datasets: [
-                        {
+                    datasets: [{
                             label: "Heat",
                             data: reactorSimulator.maxHeatHistory,
                             borderColor: function (context) {
-                                const {ctx, chartArea} = context.chart;
+                                const {
+                                    ctx,
+                                    chartArea
+                                } = context.chart;
 
                                 if (!chartArea) {
                                     return;
@@ -441,13 +441,12 @@
         function replaceLayout() {
             const widthInput = document.querySelector("#width-input");
             const heightInput = document.querySelector("#height-input");
-            const stackHeightInput = document.querySelector("#stack-height-input");
+            // const stackHeightInput = document.querySelector("#stack-height-input");
 
             reactorLayout = new ReactorLayout(
-                parseInt(widthInput.value),
-                parseInt(heightInput.value),
-                parseInt(stackHeightInput.value)
-            );
+                    parseInt(widthInput.value),
+                    parseInt(heightInput.value));//,
+                    //parseInt(stackHeightInput.value));
 
             document.querySelector("#reactor-layout-wrapper").replaceChildren(reactorLayout.getHtmlLayout());
             runSimulationAndPostResults();
@@ -458,11 +457,15 @@
             const absorberRateInput = document.querySelector("#absorber-rate-input");
             const ventBaseRateInput = document.querySelector("#vent-base-rate-input");
             const ventRelativeRateInput = document.querySelector("#vent-relative-rate-input");
+            const stackHeightInput = document.querySelector("#stack-height-input");
 
             RF_PER_PULSE = parseInt(rfPerPulseInput.value);
             ABSORBER_RATE = parseInt(absorberRateInput.value);
             VENT_BASE_RATE = parseInt(ventBaseRateInput.value);
             VENT_RELATIVE_RATE = parseInt(ventRelativeRateInput.value);
+            STACK_HEIGHT = parseInt(stackHeightInput.value);
+            
+            runSimulationAndPostResults();
         }
 
         replaceLayout();
