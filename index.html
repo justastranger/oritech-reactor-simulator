@@ -135,11 +135,10 @@
         }
 
         class ReactorLayout {
-            constructor(width, height, stackHeight) {
+            constructor(width, height) {
                 this.layout = [];
                 this.width = width;
                 this.height = height;
-                this.stackHeight = stackHeight;
 
                 for (let j = 0; j < height; j++) {
                     const row = [];
@@ -150,6 +149,18 @@
 
                     this.layout.push(row);
                 }
+            }
+            
+            fromBase64(base64) {
+                let tmp = JSON.parse(atob(base64));
+                this.width = tmp.width;
+                this.height = tmp.height;
+                this.layout = tmp.layout;
+                document.querySelector("#reactor-layout-wrapper").replaceChildren(reactorLayout.getHtmlLayout());
+            }
+            
+            getBase64() {
+                return btoa(JSON.stringify(this));
             }
 
             getComponent(position) {
@@ -189,6 +200,7 @@
                     for (let i = 0; i < this.width; i++) {
                         const layoutTableCell = document.createElement("td");
                         layoutTableCell.classList.add("reactor-component");
+                        layoutTableCell.style.backgroundImage = `url('${reactorLayout.layout[j][i].imageUrl}')`;
 
                         layoutTableCell.addEventListener("click", () => {
                             const newReactorComponent = selectedReactorComponentFactory();
