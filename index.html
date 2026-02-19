@@ -538,8 +538,11 @@
             } catch {
                 alert("Invalid base64 string.");
             }
-            
-            reactorLayout.fromBase64(base64);
+            try {
+                reactorLayout.fromBase64(base64);
+            } catch (e) {
+                alert(e);
+            }
         }
         
         function exportLayout() {
