@@ -157,8 +157,6 @@
                 let tmp = JSON.parse(atob(base64));
                 if (typeof tmp.width !== "number" || typeof tmp.height !== "number")
                     throw "Invalid reactor layout: " + ((typeof tmp.width !== "number") ? "width" : "height") + " must be a number.";
-                this.width = tmp.width;
-                this.height = tmp.height;
                 // only continue if every value in every row is a number
                 if (!tmp.layout.every(row => {
                     row.every(value => typeof value === "number");
@@ -170,6 +168,8 @@
                     }
                 }
                 // once we've properly deserialized the layout it can just be dropped into place
+                this.width = tmp.width;
+                this.height = tmp.height;
                 this.layout = tmp.layout;
                 document.querySelector("#reactor-layout-wrapper").replaceChildren(reactorLayout.getHtmlLayout());
             }
