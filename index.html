@@ -159,7 +159,7 @@
                     throw "Invalid reactor layout: " + ((typeof tmp.width !== "number") ? "width" : "height") + " must be a number.";
                 // only continue if every value in every row is a number
                 if (!tmp.layout.every(row => {
-                    row.every(value => typeof value === "number");
+                    return row.every(value => typeof value === "number");
                 })) throw "Invalid reactor layout: layout Array malformed.";
                 for (var i = 0; i < tmp.layout.length; i++) {
                     for (var j = 0; j < tmp.layout[i].length; j++) {
